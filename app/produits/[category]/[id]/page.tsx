@@ -15,7 +15,14 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { getCategoryById, getProductById } from "@/lib/data/products"
 
-const FALLBACK_IMAGE = "/placeholder.svg?height=600&width=600"
+const FALLBACK_IMAGE = "/placeholder.svg"
+
+const normalizeImageSrc = (src?: string): string => {
+  if (!src) {
+    return FALLBACK_IMAGE
+  }
+  return src.startsWith("/placeholder.svg") ? FALLBACK_IMAGE : src
+}
 
 /** Affiche le détail d'un produit en fonction des paramètres dynamiques de catégorie et d'identifiant. */
 export default function ProductDetailPage({
@@ -42,8 +49,9 @@ export default function ProductDetailPage({
       return [FALLBACK_IMAGE]
     }
 
-    const images = product.gallery?.length ? product.gallery : [product.image]
-    return images.filter(Boolean).length ? (images.filter(Boolean) as string[]) : [FALLBACK_IMAGE]
+    const rawImages = product.gallery?.length ? product.gallery : [product.image]
+    const normalizedImages = rawImages.map((imageSrc) => normalizeImageSrc(imageSrc))
+    return normalizedImages.length ? normalizedImages : [FALLBACK_IMAGE]
   }, [product])
 
   const [activeImage, setActiveImage] = useState<string>(() => galleryImages[0] ?? FALLBACK_IMAGE)
